@@ -14,7 +14,7 @@ public class BackupManager {
         this.huffman = new Huffman();
     }
 
-    public void gerarBackup(String arquivoDestino)mthrows Exception {
+    public void gerarBackup(String arquivoDestino) throws Exception {
 	System.out.println("Passo 1");
         ByteArrayOutputStream raw =
                 new ByteArrayOutputStream();

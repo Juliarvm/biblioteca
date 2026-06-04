@@ -1,7 +1,0 @@
-gerarBackupHuffman()
-
-gerarBackupLZW()
-
-restaurarBackupHuffman()
-
-restaurarBackupLZW()

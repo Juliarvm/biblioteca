@@ -8,6 +8,7 @@ import controller.LeitorController;
 import controller.LivroController;
 import controller.ReservaController;
 import controller.ReservaController;
+import compression.BackupManager;
 
 import dao.ArvoreBMaisIndice;
 import dao.ExemplarDAO;
@@ -94,7 +95,7 @@ public class ServidorWeb {
     }
 
     private void tratarInicio(HttpExchange req) throws IOException {
-        if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) {
+        if (!"GET".equalsIgnoreCase(req.getRequestMethod())) {
             enviarResposta(req, 405, "text/plain", "Metodo nao permitido.");
             return;
         }
@@ -284,9 +285,9 @@ public class ServidorWeb {
         }
     }
 
-    private void tratarRelacao(HttpExchange req) throws IOException {
+ private void tratarRelacao(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) {
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) {
                 enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido.");
                 return;
             }
@@ -309,7 +310,7 @@ public class ServidorWeb {
 
     private void tratarLivrosOrdenado(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
             List<Livro> ordenados = ordenacaoExterna.ordenarPorTitulo(3);
             StringBuilder sb = new StringBuilder("Livros ordenados por titulo:\n\n");
             if (ordenados.isEmpty()) sb.append("Nenhum livro cadastrado.\n");
@@ -322,7 +323,7 @@ public class ServidorWeb {
 
     private void tratarOrdenacao(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
             int bloco = Integer.parseInt(lerConsulta(req.getRequestURI().getRawQuery()).getOrDefault("bloco", "3"));
             List<Livro> ordenados = ordenacaoExterna.ordenarPorTitulo(bloco);
             StringBuilder sb = new StringBuilder("Ordenacao concluida. Arquivo: data/livros_ordenado_titulo.db\nBloco utilizado: " + bloco + "\n\n");
@@ -372,10 +373,9 @@ public class ServidorWeb {
         }
     }
 
-    private void tratarBackup(HttpExchange req)
-        throws IOException {
-
+    private void tratarBackup(HttpExchange req) throws IOException {
     try {
+        System.out.println(">>> ENTROU EM tratarBackup");
 
         String caminho =
                 req.getRequestURI().getPath();

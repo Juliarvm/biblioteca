@@ -1,3 +1,2 @@
-byte[] compress(byte[] dados)
-
-byte[] decompress(byte[] dados)
+//byte[] compress(byte[] dados)
+//byte[] decompress(byte[] dados)
