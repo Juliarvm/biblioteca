@@ -176,7 +176,7 @@ public class Huffman {
     }
 
     public byte[] decompress(byte[] compressed)
-            throws IOException {
+throws IOException {
 
         if (compressed.length == 0)
             return new byte[0];

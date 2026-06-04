@@ -90,8 +90,11 @@ public class ServidorWeb {
         servidor.createContext("/api/livros-ordenado", this::tratarLivrosOrdenado);
         servidor.createContext("/api/ordenacao", this::tratarOrdenacao);
         servidor.createContext("/api/arvore-bmais", this::tratarArvoreBMais);
-        servidor.createContext("/api/backup/gerar",this::tratarBackup);
-        servidor.createContext("/api/backup/restaurar",this::tratarBackup);
+        servidor.createContext("/api/backup/huffman/gerar",this::tratarBackup);
+        servidor.createContext("/api/backup/huffman/restaurar",this::tratarBackup);
+        servidor.createContext("/api/backup/lzw/gerar",this::tratarBackup);
+        servidor.createContext("/api/backup/lzw/restaurar",this::tratarBackup
+        );
     }
 
     private void tratarInicio(HttpExchange req) throws IOException {
@@ -375,43 +378,78 @@ public class ServidorWeb {
 
     private void tratarBackup(HttpExchange req) throws IOException {
     try {
-        System.out.println(">>> ENTROU EM tratarBackup");
-
-        String caminho =
-                req.getRequestURI().getPath();
-
-        String metodo =
-                req.getRequestMethod();
+        String caminho = req.getRequestURI().getPath();
+        String metodo = req.getRequestMethod();
 
         if ("POST".equalsIgnoreCase(metodo)
-                && caminho.equals("/api/backup/gerar")) {
+                && caminho.equals(
+                "/api/backup/huffman/gerar")) {
 
             backupManager.gerarBackup(
-                    "backup.huff"
+                    "backup.huff",
+                    BackupManager.Algoritmo.HUFFMAN
             );
 
             enviarResposta(
                     req,
                     200,
-                    "text/plain; charset=utf-8",
-                    "Backup gerado: backup.huff"
+                    "text/plain",
+                    "Backup Huffman gerado."
+            );
+
+            return;
+        }
+        if ("POST".equalsIgnoreCase(metodo)
+                && caminho.equals(
+                "/api/backup/huffman/restaurar")) {
+
+            backupManager.restaurarBackup(
+                    "backup.huff",
+                    BackupManager.Algoritmo.HUFFMAN
+            );
+
+            enviarResposta(
+                    req,
+                    200,
+                    "text/plain",
+                    "Backup Huffman restaurado."
             );
 
             return;
         }
 
         if ("POST".equalsIgnoreCase(metodo)
-                && caminho.equals("/api/backup/restaurar")) {
+                && caminho.equals(
+                "/api/backup/lzw/gerar")) {
 
-            backupManager.restaurarBackup(
-                    "backup.huff"
+            backupManager.gerarBackup(
+                    "backup.lzw",
+                    BackupManager.Algoritmo.LZW
             );
 
             enviarResposta(
                     req,
                     200,
-                    "text/plain; charset=utf-8",
-                    "Backup restaurado."
+                    "text/plain",
+                    "Backup LZW gerado."
+            );
+
+            return;
+        }
+        if ("POST".equalsIgnoreCase(metodo)
+                && caminho.equals(
+                "/api/backup/lzw/restaurar")) {
+
+            backupManager.restaurarBackup(
+                    "backup.lzw",
+                    BackupManager.Algoritmo.LZW
+            );
+
+            enviarResposta(
+                    req,
+                    200,
+                    "text/plain",
+                    "Backup LZW restaurado."
             );
 
             return;

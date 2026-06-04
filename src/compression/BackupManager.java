@@ -9,12 +9,16 @@ public class BackupManager {
     private static final String DATA_DIR = "data";
 
     private final Huffman huffman;
+    private final Lzw lzw;
+
+    public enum Algoritmo {HUFFMAN, LZW}
 
     public BackupManager() {
         this.huffman = new Huffman();
+        this.lzw = new Lzw();
     }
 
-    public void gerarBackup(String arquivoDestino) throws Exception {
+    public void gerarBackup(String arquivoDestino, Algoritmo algoritmo) throws Exception {
 	System.out.println("Passo 1");
         ByteArrayOutputStream raw =
                 new ByteArrayOutputStream();
@@ -47,8 +51,30 @@ public class BackupManager {
 	System.out.println("Passo 3");
         out.flush();
 
-	System.out.println("Passo 4");
-        byte[] compactado = huffman.compress(raw.toByteArray());
+	System.out.println("Passo 4 (compactacao baseado no algoritmo)");
+        byte[] compactado;
+
+        switch (algoritmo) {
+
+    case HUFFMAN:
+        compactado =
+                huffman.compress(
+                        raw.toByteArray()
+                );
+        break;
+
+    case LZW:
+        compactado =
+                lzw.compress(
+                        raw.toByteArray()
+                );
+        break;
+
+    default:
+        throw new IllegalArgumentException(
+                "Algoritmo invalido"
+        );
+}
 
         System.out.println("Passo 5");
 
@@ -61,7 +87,7 @@ public class BackupManager {
 	System.out.println("Saindo de gerar Backup");
     }
 
-    public void restaurarBackup(String arquivoBackup)
+    public void restaurarBackup(String arquivoBackup, Algoritmo algoritmo)
             throws Exception {
 
         byte[] compactado =
@@ -69,13 +95,34 @@ public class BackupManager {
                         Paths.get(arquivoBackup)
                 );
 
-        byte[] descompactado =
-                huffman.decompress(compactado);
+        byte[] raw;
+
+        switch (algoritmo) {
+
+    case HUFFMAN:
+        raw =
+                huffman.decompress(
+                        compactado
+                );
+        break;
+
+    case LZW:
+        raw =
+                lzw.decompress(
+                        compactado
+                );
+        break;
+
+    default:
+        throw new IllegalArgumentException(
+                "Algoritmo invalido"
+        );
+}
 
         DataInputStream in =
                 new DataInputStream(
                         new ByteArrayInputStream(
-                                descompactado
+                                raw
                         )
                 );
 
