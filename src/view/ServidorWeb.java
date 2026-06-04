@@ -2,16 +2,20 @@ package view;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+
 import controller.ExemplarController;
 import controller.LeitorController;
 import controller.LivroController;
 import controller.ReservaController;
+import controller.ReservaController;
+
 import dao.ArvoreBMaisIndice;
 import dao.ExemplarDAO;
 import dao.LeitorDAO;
 import dao.LivroDAO;
 import dao.OrdenacaoExternaLivros;
 import dao.ReservaDAO;
+
 import model.Exemplar;
 import model.Leitor;
 import model.Livro;
@@ -39,6 +43,7 @@ public class ServidorWeb {
     private final ReservaController reservaController;
     private final OrdenacaoExternaLivros ordenacaoExterna;
     private final ArvoreBMaisIndice arvoreBMais;
+    private final BackupManager backupManager;
 
     public ServidorWeb(int porta) throws IOException {
         this.livroDAO = new LivroDAO();
@@ -51,6 +56,7 @@ public class ServidorWeb {
         this.reservaController = new ReservaController();
         this.ordenacaoExterna = new OrdenacaoExternaLivros(livroDAO);
         this.arvoreBMais = new ArvoreBMaisIndice(4);
+        this.backupManager = new BackupManager();
 
         this.servidor = HttpServer.create(new InetSocketAddress(porta), 0);
         registrarRotas();
@@ -83,10 +89,12 @@ public class ServidorWeb {
         servidor.createContext("/api/livros-ordenado", this::tratarLivrosOrdenado);
         servidor.createContext("/api/ordenacao", this::tratarOrdenacao);
         servidor.createContext("/api/arvore-bmais", this::tratarArvoreBMais);
+        servidor.createContext("/api/backup/gerar",this::tratarBackup);
+        servidor.createContext("/api/backup/restaurar",this::tratarBackup);
     }
 
     private void tratarInicio(HttpExchange req) throws IOException {
-        if (!"GET".equalsIgnoreCase(req.getRequestMethod())) {
+        if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) {
             enviarResposta(req, 405, "text/plain", "Metodo nao permitido.");
             return;
         }
@@ -278,7 +286,7 @@ public class ServidorWeb {
 
     private void tratarRelacao(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) {
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) {
                 enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido.");
                 return;
             }
@@ -301,7 +309,7 @@ public class ServidorWeb {
 
     private void tratarLivrosOrdenado(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
             List<Livro> ordenados = ordenacaoExterna.ordenarPorTitulo(3);
             StringBuilder sb = new StringBuilder("Livros ordenados por titulo:\n\n");
             if (ordenados.isEmpty()) sb.append("Nenhum livro cadastrado.\n");
@@ -314,7 +322,7 @@ public class ServidorWeb {
 
     private void tratarOrdenacao(HttpExchange req) throws IOException {
         try {
-            if (!"GET".equalsIgnoreCase(req.getRequestMethod())) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
+            if (!"GET".equalsIgnoreCase(req.getRequestMethod()) || !"POST".equalsIgnoreCase(req.getRequestMethod)) { enviarResposta(req, 405, "text/plain; charset=utf-8", "Metodo nao permitido."); return; }
             int bloco = Integer.parseInt(lerConsulta(req.getRequestURI().getRawQuery()).getOrDefault("bloco", "3"));
             List<Livro> ordenados = ordenacaoExterna.ordenarPorTitulo(bloco);
             StringBuilder sb = new StringBuilder("Ordenacao concluida. Arquivo: data/livros_ordenado_titulo.db\nBloco utilizado: " + bloco + "\n\n");
@@ -363,6 +371,69 @@ public class ServidorWeb {
             enviarResposta(req, 400, "text/plain; charset=utf-8", "Erro: " + e.getMessage());
         }
     }
+
+    private void tratarBackup(HttpExchange req)
+        throws IOException {
+
+    try {
+
+        String caminho =
+                req.getRequestURI().getPath();
+
+        String metodo =
+                req.getRequestMethod();
+
+        if ("POST".equalsIgnoreCase(metodo)
+                && caminho.equals("/api/backup/gerar")) {
+
+            backupManager.gerarBackup(
+                    "backup.huff"
+            );
+
+            enviarResposta(
+                    req,
+                    200,
+                    "text/plain; charset=utf-8",
+                    "Backup gerado: backup.huff"
+            );
+
+            return;
+        }
+
+        if ("POST".equalsIgnoreCase(metodo)
+                && caminho.equals("/api/backup/restaurar")) {
+
+            backupManager.restaurarBackup(
+                    "backup.huff"
+            );
+
+            enviarResposta(
+                    req,
+                    200,
+                    "text/plain; charset=utf-8",
+                    "Backup restaurado."
+            );
+
+            return;
+        }
+
+        enviarResposta(
+                req,
+                405,
+                "text/plain; charset=utf-8",
+                "Operacao de backup nao suportada."
+        );
+
+    } catch (Exception e) {
+
+        enviarResposta(
+                req,
+                400,
+                "text/plain; charset=utf-8",
+                "Erro: " + e.getMessage()
+        );
+    }
+}
 
     private Livro paraLivro(int id, Map<String, String> p) {
         String titulo = p.getOrDefault("titulo", "");

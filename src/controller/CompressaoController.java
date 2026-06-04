@@ -1,0 +1,7 @@
+gerarBackupHuffman()
+
+gerarBackupLZW()
+
+restaurarBackupHuffman()
+
+restaurarBackupLZW()
