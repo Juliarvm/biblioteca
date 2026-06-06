@@ -638,6 +638,24 @@ Estado: %s
         <div class="linha"><input id="arvore-busca" placeholder="chave busca"><button onclick="buscarArvore()">Buscar</button><button onclick="depurarArvore()" class="sec">Debug</button></div>
       </div>
       <div class="cartao">
+        <h3>Backup e Restauração</h3>
+            <button onclick="gerarBackupHuffman()">
+                Gerar Backup Huffman
+            </button>
+            <button onclick="restaurarBackupHuffman()">
+                Restaurar Backup Huffman
+            </button>
+            <br><br>
+            <button onclick="gerarBackupLZW()">
+                Gerar Backup LZW
+            </button>
+            <button onclick="restaurarBackupLZW()">
+                Restaurar Backup LZW
+            </button>
+      </div>
+</div>
+
+      <div class="cartao">
         <h3>Relação 1:N</h3>
         <div class="linha"><input id="relacao-livro" placeholder="livroId"><button onclick="listarRelacao()">Exemplares do Livro</button></div>
       </div>
@@ -692,6 +710,58 @@ Estado: %s
   function inserirArvore(){ req('/api/arvore-bmais/inserir',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:cod({chave:v('arvore-chave'),valor:v('arvore-valor')})}); }
   function buscarArvore(){ req('/api/arvore-bmais/buscar/'+v('arvore-busca')); }
   function depurarArvore(){ req('/api/arvore-bmais/depurar'); }
+    async function gerarBackupHuffman() {
+
+        const resposta = await fetch(
+            '/api/backup/huffman/gerar',
+            {
+                method: 'POST'
+            }
+        );
+
+        const texto = await resposta.text();
+
+        alert(texto);
+    }
+    async function restaurarBackupHuffman() {
+
+        const resposta = await fetch(
+            '/api/backup/huffman/restaurar',
+            {
+                method: 'POST'
+            }
+        );
+
+        const texto = await resposta.text();
+
+        alert(texto);
+    }
+    async function gerarBackupLZW() {
+
+        const resposta = await fetch(
+            '/api/backup/lzw/gerar',
+            {
+                method: 'POST'
+            }
+        );
+
+        const texto = await resposta.text();
+
+        alert(texto);
+    }
+    async function restaurarBackupLZW() {
+
+        const resposta = await fetch(
+            '/api/backup/lzw/restaurar',
+            {
+                method: 'POST'
+            }
+        );
+
+        const texto = await resposta.text();
+
+        alert(texto);
+    }
 </script>
 </body>
 </html>
