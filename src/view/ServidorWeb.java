@@ -2,26 +2,17 @@ package view;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-
+import compression.BackupManager;
 import controller.ExemplarController;
 import controller.LeitorController;
 import controller.LivroController;
 import controller.ReservaController;
-import controller.ReservaController;
-import compression.BackupManager;
-
 import dao.ArvoreBMaisIndice;
 import dao.ExemplarDAO;
 import dao.LeitorDAO;
 import dao.LivroDAO;
 import dao.OrdenacaoExternaLivros;
 import dao.ReservaDAO;
-
-import model.Exemplar;
-import model.Leitor;
-import model.Livro;
-import model.Reserva;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -31,6 +22,10 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.Exemplar;
+import model.Leitor;
+import model.Livro;
+import model.Reserva;
 
 public class ServidorWeb {
     private final HttpServer servidor;
@@ -569,7 +564,7 @@ Estado: %s
 <body>
 <div class="container">
   <h1>Biblioteca</h1>
-  <p class="legenda">Sistema de gerenciamento — Fase 3</p>
+  <p class="legenda">Sistema de gerenciamento — Fase 4</p>
   <div class="grade">
 
     <div class="cartao">
